@@ -119,6 +119,12 @@ enum DriveAction {
         #[arg(short, long, default_value = "W")]
         drive: char,
     },
+    /// Open the personal network drive in Explorer
+    Open {
+        /// Drive letter to open
+        #[arg(short, long, default_value = "W")]
+        drive: char,
+    },
     /// Check network drive status
     Status,
 }
@@ -537,6 +543,9 @@ fn main() -> Result<()> {
                 }
                 DriveAction::Unmount { drive } => {
                     DriveManager::unmount(drive)?;
+                }
+                DriveAction::Open { drive } => {
+                    DriveManager::open_drive(drive)?;
                 }
                 DriveAction::Status => {
                     DriveManager::status()?;
