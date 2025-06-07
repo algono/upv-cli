@@ -85,6 +85,9 @@ enum VpnAction {
         /// Skip confirmation prompts
         #[arg(short, long)]
         force: bool,
+        /// VPN connection names to exclude from deletion (can be used multiple times)
+        #[arg(short, long = "except", value_name = "NAME")]
+        except: Vec<String>,
     },
     /// Check VPN connection status
     Status,
@@ -215,14 +218,29 @@ impl VpnManager {
         Ok(())
     }
     
-    fn purge(force: bool) -> Result<()> {
+    fn purge(force: bool, except_names: Vec<String>) -> Result<()> {
         // Get the list of UPV connections
-        let connections = match Self::get_upv_connections() {
+        let all_connections = match Self::get_upv_connections() {
             Ok(conns) => conns,
             Err(e) => {
                 eprintln!("Failed to get VPN connections: {}", e);
                 return Ok(());
             }
+        };
+        
+        if all_connections.is_empty() {
+            println!("No UPV VPN connections found to delete.");
+            return Ok(());
+        }
+        
+        // Filter out the connections to except (only if there are exceptions)
+        let connections = if except_names.is_empty() {
+            all_connections
+        } else {
+            all_connections
+                .into_iter()
+                .filter(|conn| !except_names.contains(conn))
+                .collect()
         };
         
         if connections.is_empty() {
@@ -496,8 +514,8 @@ fn main() -> Result<()> {
                 VpnAction::List => {
                     VpnManager::list()?;
                 }
-                VpnAction::Purge { force } => {
-                    VpnManager::purge(force)?;
+                VpnAction::Purge { force, except } => {
+                    VpnManager::purge(force, except)?;
                 }
                 VpnAction::Status => {
                     VpnManager::status()?;
