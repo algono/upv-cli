@@ -11,6 +11,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use std::process::{Command, Stdio};
 use std::io::{self, Write};
 use anyhow::{Result, Context};
+use std::path::Path;
 
 // Embed the EAP configuration XML file at compile time
 const EAP_CONFIG_XML: &str = include_str!("../resources/UPV_Config.xml");
@@ -444,7 +445,7 @@ impl DriveManager {
             
             // Open in Explorer if requested
             if open_explorer {
-                Self::open_drive(drive)?;
+                Self::open_drive(drive, false)?;
             }
         } else {
             let error = String::from_utf8_lossy(&output.stderr);
@@ -454,21 +455,19 @@ impl DriveManager {
         Ok(())
     }
     
-    fn open_drive(drive: char) -> Result<()> {
-        println!("Opening drive {}: in Explorer...", drive);
-        
-        let output = Command::new("explorer.exe")
-            .arg(format!("{}:", drive))
-            .output()
-            .context("Failed to open Explorer")?;
-        
-        if output.status.success() {
-            println!("Drive {}: opened in Explorer", drive);
-        } else {
-            let error = String::from_utf8_lossy(&output.stderr);
-            eprintln!("Failed to open Explorer: {}", error);
+    fn open_drive(drive: char, check_if_exists: bool) -> Result<()> {
+        let path = format!("{}:\\", drive);
+
+        if check_if_exists && !Path::new(&path).exists() {
+            anyhow::bail!("Drive {} does not exist", drive);
         }
-        
+
+        println!("Opening drive {}: in Explorer...", drive);
+        Command::new("explorer.exe")
+            .arg(&path)
+            .spawn()
+            .context("Failed to launch Explorer")?;
+
         Ok(())
     }
     
@@ -545,7 +544,7 @@ fn main() -> Result<()> {
                     DriveManager::unmount(drive)?;
                 }
                 DriveAction::Open { drive } => {
-                    DriveManager::open_drive(drive)?;
+                    DriveManager::open_drive(drive, true)?;
                 }
                 DriveAction::Status => {
                     DriveManager::status()?;
