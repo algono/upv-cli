@@ -98,11 +98,10 @@ enum DriveAction {
     /// Mount the personal network drive (Disco W)
     Mount {
         /// Your UPV username (example: if your email is "user@upv.es", your username is "user")
-        #[arg(index = 1)]
         username: String,
 
         /// UPV domain
-        #[arg(index = 2, value_enum, ignore_case = true)]
+        #[arg(value_enum, ignore_case = true)]
         domain: UPVDomain,
         /// Password for network drive (if not provided, uses current VPN or Wi-Fi credentials)
         #[arg(short, long)]
