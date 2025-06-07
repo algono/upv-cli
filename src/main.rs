@@ -98,7 +98,7 @@ enum DriveAction {
     /// Mount the personal network drive (Disco W)
     Mount {
         /// UPV domain
-        #[arg(value_enum)]
+        #[arg(value_enum, ignore_case = true)]
         domain: UPVDomain,
         /// Username for network drive
         #[arg(short, long)]
