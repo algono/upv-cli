@@ -1,6 +1,3 @@
-// Initial WIP version - needs to be completed and tested
-// This code is a work in progress (WIP) and may not be fully functional yet.
-
 // This CLI tool manages UPV's VPN connection and Personal Network Drive (Disco W) on Windows.
 // It allows users to create, connect, disconnect, and check the status of VPN connections,
 // as well as mount, unmount, and check the status of the personal network drive.
@@ -12,7 +9,7 @@
 
 use clap::{Parser, Subcommand, ValueEnum};
 use std::process::{Command, Stdio};
-use std::io::Write;
+use std::io::{self, Write};
 use anyhow::{Result, Context};
 
 // Embed the EAP configuration XML file at compile time
@@ -73,6 +70,16 @@ enum VpnAction {
     },
     /// Disconnect from UPV VPN
     Disconnect,
+    /// Delete an existing UPV VPN connection
+    Delete {
+        /// Name of the VPN connection to delete
+        name: String,
+        /// Skip confirmation prompt
+        #[arg(short, long)]
+        force: bool,
+    },
+    /// List all UPV VPN connections
+    List,
     /// Check VPN connection status
     Status,
 }
@@ -192,6 +199,79 @@ impl VpnManager {
         } else {
             let error = String::from_utf8_lossy(&output.stderr);
             eprintln!("Failed to disconnect: {}", error);
+        }
+        
+        Ok(())
+    }
+    
+    fn delete(name: &str, force: bool) -> Result<()> {
+        if !force {
+            print!("Are you sure you want to delete VPN connection '{}'? (y/N): ", name);
+            io::stdout().flush().context("Failed to flush stdout")?;
+            
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).context("Failed to read user input")?;
+            
+            let confirmation = input.trim().to_lowercase();
+            if confirmation != "y" && confirmation != "yes" {
+                println!("Operation cancelled.");
+                return Ok(());
+            }
+        }
+        
+        println!("Deleting VPN connection '{}'...", name);
+        
+        let ps_command = format!("Remove-VpnConnection -Name '{}' -Force", name);
+        
+        let output = Command::new("powershell")
+            .arg("-Command")
+            .arg(&ps_command)
+            .output()
+            .context("Failed to execute PowerShell command")?;
+        
+        if output.status.success() {
+            println!("VPN connection '{}' deleted successfully", name);
+        } else {
+            let error = String::from_utf8_lossy(&output.stderr);
+            eprintln!("Failed to delete VPN connection: {}", error);
+        }
+        
+        Ok(())
+    }
+    
+    fn list() -> Result<()> {
+        println!("Listing UPV VPN connections...");
+        
+        let server_address = "vpn.upv.es";
+        let ps_command = format!(
+            "Get-VpnConnection | Where-Object {{$_.ServerAddress -eq '{}'}} | Select-Object -ExpandProperty Name",
+            server_address
+        );
+        
+        let output = Command::new("powershell")
+            .arg("-Command")
+            .arg(&ps_command)
+            .output()
+            .context("Failed to execute PowerShell command")?;
+        
+        if output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let connections: Vec<&str> = stdout.lines()
+                .map(|line| line.trim())
+                .filter(|line| !line.is_empty())
+                .collect();
+            
+            if connections.is_empty() {
+                println!("No UPV VPN connections found.");
+            } else {
+                println!("Found {} UPV VPN connection(s):", connections.len());
+                for conn in connections {
+                    println!("  - {}", conn);
+                }
+            }
+        } else {
+            let error = String::from_utf8_lossy(&output.stderr);
+            eprintln!("Failed to list VPN connections: {}", error);
         }
         
         Ok(())
@@ -317,6 +397,12 @@ fn main() -> Result<()> {
                 VpnAction::Disconnect => {
                     VpnManager::disconnect()?;
                 }
+                VpnAction::Delete { name, force } => {
+                    VpnManager::delete(&name, force)?;
+                }
+                VpnAction::List => {
+                    VpnManager::list()?;
+                }
                 VpnAction::Status => {
                     VpnManager::status()?;
                 }
@@ -345,6 +431,9 @@ fn main() -> Result<()> {
 // upv-cli vpn create "UPV Work" -c  # Short flag for --connect
 // upv-cli vpn connect "My UPV Connection"
 // upv-cli vpn disconnect
+// upv-cli vpn delete "My UPV Connection"
+// upv-cli vpn delete "UPV Work" --force  # Skip confirmation
+// upv-cli vpn list
 // upv-cli vpn status
 // upv-cli drive mount UPVNET --username myuser --drive W --open
 // upv-cli drive mount ALUMNO -u myuser -d W -o  # Short flags
