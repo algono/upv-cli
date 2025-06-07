@@ -103,6 +103,9 @@ enum DriveAction {
         /// Username for network drive
         #[arg(short, long)]
         username: String,
+        /// Password for network drive (if not provided, uses current VPN credentials)
+        #[arg(short, long)]
+        password: Option<String>,
         /// Drive letter to mount to
         #[arg(short, long, default_value = "W")]
         drive: char,
@@ -403,7 +406,7 @@ impl VpnManager {
 }
 
 impl DriveManager {
-    fn mount(domain: &UPVDomain, username: &str, drive: char, open_explorer: bool) -> Result<()> {
+    fn mount(domain: &UPVDomain, username: &str, password: Option<&str>, drive: char, open_explorer: bool) -> Result<()> {
         println!("Mounting Disco W to drive {}:...", drive);
         
         let first_letter = username.chars().next()
@@ -419,8 +422,13 @@ impl DriveManager {
         let mut cmd = Command::new("net");
         cmd.arg("use")
            .arg(format!("{}:", drive))
-           .arg(&server_path)
-           .arg(format!("/user:{}", username));
+           .arg(&server_path);
+        
+        // Only add /USER if password is provided
+        if let Some(pwd) = password {
+            cmd.arg(format!("/user:{}\\{}", domain, username))
+               .arg(pwd);
+        }
         
         let output = cmd.output()
             .context("Failed to execute net use command")?;
@@ -524,8 +532,8 @@ fn main() -> Result<()> {
         }
         Commands::Drive { action } => {
             match action {
-                DriveAction::Mount { domain, username, drive, open } => {
-                    DriveManager::mount(&domain, &username, drive, open)?;
+                DriveAction::Mount { domain, username, password, drive, open } => {
+                    DriveManager::mount(&domain, &username, password.as_deref(), drive, open)?;
                 }
                 DriveAction::Unmount { drive } => {
                     DriveManager::unmount(drive)?;
@@ -550,8 +558,12 @@ fn main() -> Result<()> {
 // upv-cli vpn list
 // upv-cli vpn purge                       # Delete all UPV connections (with double confirmation)
 // upv-cli vpn purge --force              # Delete all UPV connections without confirmation
+// upv-cli vpn purge --except "Keep This" # Delete all except specified connections
+// upv-cli vpn purge -e "VPN1" -e "VPN2"  # Delete all except VPN1 and VPN2
 // upv-cli vpn status
-// upv-cli drive mount UPVNET --username myuser --drive W --open
-// upv-cli drive mount ALUMNO -u myuser -d W -o  # Short flags
+// upv-cli drive mount UPVNET --username myuser --drive W --open  # Uses VPN credentials
+// upv-cli drive mount UPVNET --username myuser --password mypass --drive W --open  # Uses explicit credentials
+// upv-cli drive mount ALUMNO -u myuser -d W -o  # Short flags, uses VPN credentials
+// upv-cli drive mount ALUMNO -u myuser -p mypass -d W -o  # Short flags with password
 // upv-cli drive unmount --drive W
 // upv-cli drive status
