@@ -97,13 +97,14 @@ enum VpnAction {
 enum DriveAction {
     /// Mount the personal network drive (Disco W)
     Mount {
-        /// UPV domain
-        #[arg(value_enum, ignore_case = true)]
-        domain: UPVDomain,
-        /// Username for network drive
-        #[arg(short, long)]
+        /// Your UPV username (example: if your email is "user@upv.es", your username is "user")
+        #[arg(index = 1)]
         username: String,
-        /// Password for network drive (if not provided, uses current VPN credentials)
+
+        /// UPV domain
+        #[arg(index = 2, value_enum, ignore_case = true)]
+        domain: UPVDomain,
+        /// Password for network drive (if not provided, uses current VPN or Wi-Fi credentials)
         #[arg(short, long)]
         password: Option<String>,
         /// Drive letter to mount to
@@ -406,7 +407,7 @@ impl VpnManager {
 }
 
 impl DriveManager {
-    fn mount(domain: &UPVDomain, username: &str, password: Option<&str>, drive: char, open_explorer: bool) -> Result<()> {
+    fn mount(username: &str, domain: &UPVDomain, password: Option<&str>, drive: char, open_explorer: bool) -> Result<()> {
         println!("Mounting Disco W to drive {}:...", drive);
         
         let first_letter = username.chars().next()
@@ -532,8 +533,8 @@ fn main() -> Result<()> {
         }
         Commands::Drive { action } => {
             match action {
-                DriveAction::Mount { domain, username, password, drive, open } => {
-                    DriveManager::mount(&domain, &username, password.as_deref(), drive, open)?;
+                DriveAction::Mount { username, domain, password, drive, open } => {
+                    DriveManager::mount(&username, &domain, password.as_deref(), drive, open)?;
                 }
                 DriveAction::Unmount { drive } => {
                     DriveManager::unmount(drive)?;
