@@ -120,7 +120,7 @@ $xml = @'
 {}
 '@
 
-Add-VpnConnection -Name '{}' -ServerAddress '{}' -EapConfigXmlStream $xml
+Add-VpnConnection -Name '{}' -ServerAddress '{}' -AuthenticationMethod Eap -EncryptionLevel Required -TunnelType Sstp -EapConfigXmlStream $xml
 
 
 "#,
