@@ -113,20 +113,14 @@ impl VpnManager {
         
         let server_address = "vpn.upv.es";
         
-        // Create PowerShell command using here-string for XML content
+        // Clean the XML content and create here-string like your .NET approach
+        let xml_content = EAP_CONFIG_XML.trim().trim_start_matches('\u{feff}'); // Remove BOM if present
+        
         let ps_command = format!(
-            r#"
-$xml = @'
-{}
-'@
-
-Add-VpnConnection -Name '{}' -ServerAddress '{}' -AuthenticationMethod Eap -EncryptionLevel Required -TunnelType Sstp -EapConfigXmlStream $xml
-
-
-"#,
-            EAP_CONFIG_XML.trim(),
+            "Add-VpnConnection -Name '{}' -ServerAddress '{}' -AuthenticationMethod Eap -EncryptionLevel Required -TunnelType Sstp -EapConfigXmlStream @'\r\n{}\r\n'@\r\n\r\n",
             name,
-            server_address
+            server_address,
+            xml_content
         );
         
         // Execute PowerShell with command via stdin
