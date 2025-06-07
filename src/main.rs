@@ -1,15 +1,3 @@
-// Cargo.toml
-/*
-[package]
-name = "upv-cli"
-version = "1.0.0"
-edition = "2025"
-
-[dependencies]
-clap = { version = "4.0", features = ["derive"] }
-anyhow = "1.0"  # For better error handling
-*/
-
 // Initial WIP version - needs to be completed and tested
 // This code is a work in progress (WIP) and may not be fully functional yet.
 
@@ -18,10 +6,17 @@ anyhow = "1.0"  # For better error handling
 // as well as mount, unmount, and check the status of the personal network drive.
 // It uses PowerShell commands for VPN management and Windows commands for network drive operations.
 
+// Dependencies:
+// - clap: For command-line argument parsing
+// - anyhow: For error handling
 
 use clap::{Parser, Subcommand, ValueEnum};
-use std::process::Command;
+use std::process::{Command, Stdio};
+use std::io::Write;
 use anyhow::{Result, Context};
+
+// Embed the EAP configuration XML file at compile time
+const EAP_CONFIG_XML: &str = include_str!("../resources/UPV_Config.xml");
 
 #[derive(Debug, Clone, ValueEnum)]
 enum UPVDomain {
@@ -67,12 +62,6 @@ enum VpnAction {
     Create {
         /// Name for the VPN connection
         name: String,
-        /// UPV domain to connect to
-        #[arg(value_enum)]
-        domain: UPVDomain,
-        /// Path to EAP config XML file
-        #[arg(short = 'x', long)]
-        eap_config: Option<String>,
         /// Connect immediately after creating
         #[arg(short, long)]
         connect: bool,
@@ -97,7 +86,7 @@ enum DriveAction {
         domain: UPVDomain,
         /// Username for network drive
         #[arg(short, long)]
-        username: Option<String>,
+        username: String,
         /// Drive letter to mount to
         #[arg(short, long, default_value = "W")]
         drive: char,
@@ -119,26 +108,47 @@ struct VpnManager;
 struct DriveManager;
 
 impl VpnManager {
-    fn create(name: &str, domain: &UPVDomain, eap_config: Option<&str>, auto_connect: bool) -> Result<()> {
+    fn create(name: &str, auto_connect: bool) -> Result<()> {
         println!("Creating VPN connection '{}'...", name);
         
-        let server_address = "vpn.upv.es"; // Same address for both domains as you mentioned
+        let server_address = "vpn.upv.es";
         
-        let mut cmd = Command::new("powershell");
-        let mut ps_command = format!(
-            "Add-VpnConnection -Name '{}' -ServerAddress '{}'", 
-            name, server_address
+        // Create PowerShell command using here-string for XML content
+        let ps_command = format!(
+            r#"
+$xml = @'
+{}
+'@
+
+Add-VpnConnection -Name '{}' -ServerAddress '{}' -EapConfigXmlStream $xml
+
+
+"#,
+            EAP_CONFIG_XML.trim(),
+            name,
+            server_address
         );
         
-        // Add EAP config if provided
-        if let Some(eap_path) = eap_config {
-            ps_command.push_str(&format!(" -EapConfigXmlStream '{}'", eap_path));
+        // Execute PowerShell with command via stdin
+        let mut child = Command::new("powershell")
+            .arg("-Command")
+            .arg("-")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .context("Failed to spawn PowerShell process")?;
+        
+        // Write command to stdin and close it
+        if let Some(stdin) = child.stdin.take() {
+            let mut stdin = stdin;
+            stdin.write_all(ps_command.as_bytes())
+                .context("Failed to write to PowerShell stdin")?;
+            // stdin is automatically closed when it goes out of scope
         }
         
-        cmd.arg("-Command").arg(&ps_command);
-        
-        let output = cmd.output()
-            .context("Failed to execute PowerShell command")?;
+        let output = child.wait_with_output()
+            .context("Failed to wait for PowerShell command")?;
         
         if output.status.success() {
             println!("VPN connection '{}' created successfully", name);
@@ -208,23 +218,24 @@ impl VpnManager {
 }
 
 impl DriveManager {
-    fn mount(domain: &UPVDomain, username: Option<&str>, drive: char, open_explorer: bool) -> Result<()> {
+    fn mount(domain: &UPVDomain, username: &str, drive: char, open_explorer: bool) -> Result<()> {
         println!("Mounting Disco W to drive {}:...", drive);
         
+        let first_letter = username.chars().next()
+            .context("Username cannot be empty")?
+            .to_lowercase()
+            .to_string();
+        
         let server_path = match domain {
-            UPVDomain::ALUMNO => r"\\almacen.upv.es\alumnos",
-            UPVDomain::UPVNET => r"\\almacen.upv.es\usuarios",
+            UPVDomain::ALUMNO => format!(r"\\nasupv.upv.es\alumnos\{}\{}", first_letter, username),
+            UPVDomain::UPVNET => format!(r"\\nasupv.upv.es\discos\{}\{}", first_letter, username),
         };
         
         let mut cmd = Command::new("net");
         cmd.arg("use")
            .arg(format!("{}:", drive))
-           .arg(server_path);
-        
-        if let Some(user) = username {
-            cmd.arg(format!("/user:{}", user));
-            // You might want to prompt for password securely here
-        }
+           .arg(&server_path)
+           .arg(format!("/user:{}", username));
         
         let output = cmd.output()
             .context("Failed to execute net use command")?;
@@ -303,8 +314,8 @@ fn main() -> Result<()> {
     match cli.command {
         Commands::Vpn { action } => {
             match action {
-                VpnAction::Create { name, domain, eap_config, connect } => {
-                    VpnManager::create(&name, &domain, eap_config.as_deref(), connect)?;
+                VpnAction::Create { name, connect } => {
+                    VpnManager::create(&name, connect)?;
                 }
                 VpnAction::Connect { name } => {
                     VpnManager::connect(&name)?;
@@ -320,7 +331,7 @@ fn main() -> Result<()> {
         Commands::Drive { action } => {
             match action {
                 DriveAction::Mount { domain, username, drive, open } => {
-                    DriveManager::mount(&domain, username.as_deref(), drive, open)?;
+                    DriveManager::mount(&domain, &username, drive, open)?;
                 }
                 DriveAction::Unmount { drive } => {
                     DriveManager::unmount(drive)?;
@@ -336,8 +347,8 @@ fn main() -> Result<()> {
 }
 
 // Usage examples:
-// upv-cli vpn create "My UPV Connection" ALUMNO --eap-config config.xml --connect
-// upv-cli vpn create "UPV Work" UPVNET -c  # Short flag for --connect
+// upv-cli vpn create "My UPV Connection" --connect
+// upv-cli vpn create "UPV Work" -c  # Short flag for --connect
 // upv-cli vpn connect "My UPV Connection"
 // upv-cli vpn disconnect
 // upv-cli vpn status

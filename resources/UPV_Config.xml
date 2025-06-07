@@ -1,0 +1,35 @@
+﻿<EapHostConfig xmlns="http://www.microsoft.com/provisioning/EapHostConfig">
+  <EapMethod>
+    <Type xmlns="http://www.microsoft.com/provisioning/EapCommon">25</Type>
+    <VendorId xmlns="http://www.microsoft.com/provisioning/EapCommon">0</VendorId>
+    <VendorType xmlns="http://www.microsoft.com/provisioning/EapCommon">0</VendorType>
+    <AuthorId xmlns="http://www.microsoft.com/provisioning/EapCommon">0</AuthorId>
+  </EapMethod>
+  <Config xmlns="http://www.microsoft.com/provisioning/EapHostConfig">
+    <Eap xmlns="http://www.microsoft.com/provisioning/BaseEapConnectionPropertiesV1">
+      <Type>25</Type>
+      <EapType xmlns="http://www.microsoft.com/provisioning/MsPeapConnectionPropertiesV1">
+        <ServerValidation>
+          <DisableUserPromptForServerValidation>false</DisableUserPromptForServerValidation>
+          <ServerNames>radius.upv.es</ServerNames>
+          <TrustedRootCA>05 63 b8 63 0d 62 d7 5a bb c8 ab 1e 4b df b5 a8 99 b2 4d 43 </TrustedRootCA>
+          <TrustedRootCA>d1 cb ca 5d b2 d5 2a 7f 69 3b 67 4d e5 f0 5a 1d 0c 95 7d f0 </TrustedRootCA>
+        </ServerValidation>
+        <FastReconnect>true</FastReconnect>
+        <InnerEapOptional>false</InnerEapOptional>
+        <Eap xmlns="http://www.microsoft.com/provisioning/BaseEapConnectionPropertiesV1">
+          <Type>26</Type>
+          <EapType xmlns="http://www.microsoft.com/provisioning/MsChapV2ConnectionPropertiesV1">
+            <UseWinLogonCredentials>false</UseWinLogonCredentials>
+          </EapType>
+        </Eap>
+        <EnableQuarantineChecks>false</EnableQuarantineChecks>
+        <RequireCryptoBinding>false</RequireCryptoBinding>
+        <PeapExtensions>
+          <PerformServerValidation xmlns="http://www.microsoft.com/provisioning/MsPeapConnectionPropertiesV2">true</PerformServerValidation>
+          <AcceptServerName xmlns="http://www.microsoft.com/provisioning/MsPeapConnectionPropertiesV2">true</AcceptServerName>
+        </PeapExtensions>
+      </EapType>
+    </Eap>
+  </Config>
+</EapHostConfig>
