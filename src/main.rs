@@ -119,6 +119,9 @@ enum DriveAction {
         /// Drive letter to unmount
         #[arg(short, long, default_value = "W")]
         drive: char,
+        /// Skip confirmation prompt
+        #[arg(short, long)]
+        force: bool,
     },
     /// Open the personal network drive in Explorer
     Open {
@@ -471,19 +474,34 @@ impl DriveManager {
         Ok(())
     }
     
-    fn unmount(drive: char) -> Result<()> {
+    fn unmount(drive: char, force: bool) -> Result<()> {
         println!("Unmounting drive {}:...", drive);
         
-        let output = Command::new("net")
-            .arg("use")
-            .arg(format!("{}:", drive))
-            .arg("/delete")
-            .output()
+        let mut cmd = Command::new("net");
+        cmd.arg("use")
+           .arg(format!("{}:", drive))
+           .arg("/delete");
+        
+        // Only add /y if force is true
+        if force {
+            cmd.arg("/y");
+        }
+        
+        let output = cmd.output()
             .context("Failed to execute net use delete command")?;
         
         if output.status.success() {
             println!("Drive {}: unmounted successfully", drive);
         } else {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            
+            // If stdout contains "/N" it's part of "(Y/N)". This confirmation shows when it's trying to unmount a drive that is in use
+            // (files are open, the folder is open, etc.)
+            if stdout.contains("/N") {
+                eprintln!("Drive {}: is currently IN USE. Please CLOSE any open files or folders on this drive and try again, or run this again with the --force option to unmount it anyways, accepting that INFORMATION COULD BE LOST.", drive);
+                return Ok(());
+            }
+
             let error = String::from_utf8_lossy(&output.stderr);
             eprintln!("Failed to unmount drive: {}", error);
         }
@@ -540,8 +558,8 @@ fn main() -> Result<()> {
                 DriveAction::Mount { username, domain, password, drive, open } => {
                     DriveManager::mount(&username, &domain, password.as_deref(), drive, open)?;
                 }
-                DriveAction::Unmount { drive } => {
-                    DriveManager::unmount(drive)?;
+                DriveAction::Unmount { drive, force } => {
+                    DriveManager::unmount(drive, force)?;
                 }
                 DriveAction::Open { drive } => {
                     DriveManager::open_drive(drive, true)?;
