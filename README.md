@@ -25,13 +25,31 @@
 
 > :warning: **Note:** This tool is only available for **Windows**, since it uses Windows-specific features like `net use` and `rasdial`.
 
-Install from source using Cargo:
+Install from [crates.io](https://crates.io/crates/upv-cli):
+
+```bash
+cargo install upv-cli
+```
+
+Or from source:
 
 ```bash
 cargo install --path .
 ```
 
 Make sure `~/.cargo/bin` is in your `PATH`.
+
+> 📝 **Note:** After installing, the binary is available as `upv`.
+
+---
+
+## ⚡ Quickstart
+
+```bash
+cargo install upv-cli
+upv vpn create "UPV VPN" --connect
+upv drive mount UPVNET -u myuser -d W -o
+```
 
 ---
 
