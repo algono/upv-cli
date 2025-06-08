@@ -22,6 +22,13 @@ use cli::{Cli, Commands, VpnAction, DriveAction};
 use drive::DriveManager;
 use vpn::VpnManager;
 
+#[cfg(not(target_os = "windows"))]
+fn main() -> anyhow::Result<()> {
+    eprintln!("ERROR: Sorry, but this tool only supports Windows.");
+    std::process::exit(1);
+}
+
+#[cfg(target_os = "windows")]
 fn main() -> Result<()> {
     let cli = Cli::parse();
     
