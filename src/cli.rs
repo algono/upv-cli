@@ -23,6 +23,9 @@ pub enum Commands {
         #[command(subcommand)]
         action: DriveAction,
     },
+    /// Generate a PowerShell auto-completions script that you can source in your PowerShell profile
+    // (this could allow other shells, but for now since we only support Windows, we can keep it simple)
+    Completions
 }
 
 #[derive(Subcommand)]

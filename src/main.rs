@@ -13,8 +13,11 @@ mod cli;
 mod drive;
 mod vpn;
 
-use clap::Parser;
+use clap::{Parser, CommandFactory};
 use anyhow::Result;
+use clap_complete::{generate, shells::PowerShell};
+use std::io;
+
 use cli::{Cli, Commands, VpnAction, DriveAction};
 use drive::DriveManager;
 use vpn::VpnManager;
@@ -63,6 +66,9 @@ fn main() -> Result<()> {
                     DriveManager::status()?;
                 }
             }
+        }
+        Commands::Completions => {
+            generate(PowerShell, &mut Cli::command(), "upv", &mut io::stdout());
         }
     }
     
