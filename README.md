@@ -23,7 +23,7 @@
 
 ## 📦 Installation
 
-> :warning: **Note:** This tool is only available for **Windows**, since it uses Windows-specific features like `net use` and `rasdial`.
+> ⚠️ **Note:** This tool is only available for **Windows**, since it uses Windows-specific features like `net use` and `rasdial`.
 
 Install from [crates.io](https://crates.io/crates/upv-cli):
 
@@ -123,6 +123,6 @@ This tool was developed by [Alejandro Gómez (algono)](https://github.com/algono
 
 #### 🗃️ Older versions
 
-> :warning: Notice: The tools mentioned here are no longer maintained, and may contain some outdated features
+> ⚠️ Notice: The tools mentioned here are no longer maintained, and may contain some outdated features
 
 For a GUI solution, check out: [AccesoUPV](https://github.com/algono/AccesoUPV)
