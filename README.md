@@ -80,6 +80,8 @@ upv drive mount myuser ALUMNO -d W -o  # Short flags, uses VPN credentials
 upv drive mount myuser ALUMNO -p mypass -d W -o  # Short flags with password
 upv drive unmount --drive W
 upv drive status
+upv completions # Generate PowerShell shell completions script
+upv completions > upv-completions.ps1 # Save PowerShell shell completions script to a file
 ```
 
 Use `--help` to see available options:
@@ -89,6 +91,50 @@ upv --help
 upv vpn --help
 upv drive --help
 ```
+
+---
+
+## 🧩 Shell Completions
+
+`upv-cli` supports generating shell completion scripts for various shells, but since it's mainly Windows-focused, **PowerShell completions** are provided out-of-the-box.
+
+You have two easy ways to enable completions:
+
+### 1. Dynamic completion loading (recommended for ease of use)
+
+Add this line to your PowerShell profile (`$PROFILE`), so completions load dynamically every time you open a new shell:
+
+```powershell
+Invoke-Expression (& upv completions | Out-String)
+```
+
+If you want to make it so it only runs when `upv` is available, you can add this instead:
+
+```powershell
+if (Get-Command upv -ErrorAction SilentlyContinue) {
+    Invoke-Expression (& upv completions | Out-String)
+}
+```
+
+This runs the completions command at startup and loads the completions script in memory, always matching the current version of the tool. It adds a tiny bit of startup overhead but requires zero manual updates.
+
+### 2. Static completions file
+
+If you prefer faster shell startup and don't want to run the completion generator every time:
+
+1. Generate the completions file and save it somewhere (e.g., `~\upv-completions.ps1`):
+
+```powershell
+upv completions > $HOME\upv-completions.ps1
+```
+
+2. Add this line to your PowerShell profile (`$PROFILE`) to load the saved completions script:
+
+```powershell
+. $HOME\upv-completions.ps1
+```
+
+Now your completions load instantly, but you'll need to regenerate the file manually if you update `upv`.
 
 ---
 
