@@ -123,4 +123,6 @@ This tool was developed by [Alejandro Gómez (algono)](https://github.com/algono
 
 #### 🗃️ Older versions
 
-For a GUI solution, check out: [AccesoUPV](https://github.com/algono/AccesoUPV) _(:warning: Notice: it's no longer maintained, and contains some outdated connections)_
+> :warning: Notice: The tools mentioned here are no longer maintained, and may contain some outdated features
+
+For a GUI solution, check out: [AccesoUPV](https://github.com/algono/AccesoUPV)
