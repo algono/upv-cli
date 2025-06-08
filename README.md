@@ -1,0 +1,104 @@
+# upv-cli
+
+**A command-line tool for managing VPN and network shares (on Windows) from UPV (Universitat Politècnica de València), built in Rust.**
+
+[![GitHub](https://img.shields.io/badge/github-algono%2Fupv--cli-8da0cb?logo=github)](https://github.com/algono/upv-cli)
+[![Crates.io](https://img.shields.io/crates/v/upv-cli.svg)](https://crates.io/crates/upv-cli)
+[![Rust](https://img.shields.io/badge/Rust-D34516?logo=rust&logoColor=white)](https://www.rust-lang.org/)
+
+
+---
+
+## 🚀 Features
+
+- Setup UPV's VPN configuration on Windows easily via CLI (`upv vpn create <NAME>`)
+- Mount and unmount your personal UPV network drive (colloquially known as "_Disco W_")
+- Automatically open the drive after mounting
+- Force unmount even if files are in use
+- Built-in `open` command to directly open mounted drives
+- Fast and lightweight — no GUI required
+- Friendly for PowerShell, CMD, and other shells
+
+---
+
+## 📦 Installation
+
+Install from source using Cargo:
+
+```bash
+cargo install --path .
+```
+
+Make sure `~/.cargo/bin` is in your `PATH`.
+
+---
+
+## 🧑‍💻 Usage
+
+```bash
+upv <command> [options]
+```
+
+### Example commands:
+
+```bash
+upv-cli vpn create "My UPV Connection" --connect
+upv-cli vpn create "UPV Work" -c  # Short flag for --connect
+upv-cli vpn connect "My UPV Connection"
+upv-cli vpn disconnect
+upv-cli vpn delete "My UPV Connection"
+upv-cli vpn delete "UPV Work" --force  # Skip confirmation
+upv-cli vpn list
+upv-cli vpn purge                       # Delete all UPV connections (with double confirmation)
+upv-cli vpn purge --force              # Delete all UPV connections without confirmation
+upv-cli vpn purge --except "Keep This" # Delete all except specified connections
+upv-cli vpn purge -e "VPN1" -e "VPN2"  # Delete all except VPN1 and VPN2
+upv-cli vpn status
+upv-cli drive mount UPVNET --username myuser --drive W --open  # Uses VPN credentials
+upv-cli drive mount UPVNET --username myuser --password mypass --drive W --open  # Uses explicit credentials
+upv-cli drive mount ALUMNO -u myuser -d W -o  # Short flags, uses VPN credentials
+upv-cli drive mount ALUMNO -u myuser -p mypass -d W -o  # Short flags with password
+upv-cli drive unmount --drive W
+upv-cli drive status
+```
+
+Use `--help` to see available options:
+
+```bash
+upv --help
+```
+
+---
+
+## 🛠️ Development
+
+Clone the repo and run locally:
+
+```bash
+git clone https://github.com/algono/upv-cli
+cd upv-cli
+cargo run -- <your-args>
+```
+
+---
+
+## 🧾 License
+
+Licensed under either of:
+
+* [MIT License](LICENSE-MIT)
+* [Apache License, Version 2.0](LICENSE-APACHE)
+
+at your option.
+
+---
+
+## 🙋 About
+
+This tool was developed by [Alejandro Gómez (algono)](https://github.com/algono) to simplify VPN and network drive access for students and staff at [UPV](https://www.upv.es/index-en.html).
+
+---
+
+#### 🗃️ Older versions
+
+For a GUI solution, check out: [AccesoUPV](https://github.com/algono/AccesoUPV) _(:warning: Notice: it's no longer maintained, and contains some outdated connections)_
