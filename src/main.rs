@@ -1,4 +1,4 @@
-// upv-cli: A command-line tool for managing VPN and network shares (on Windows) from UPV (Universitat Politècnica de València).
+// upv-cli: A CLI tool for managing VPN and network shares from UPV (Universitat Politècnica de València) on Windows.
 
 // This CLI tool manages UPV's VPN connection and Personal Network Drive (Disco W) on Windows.
 // It allows users to create, connect, disconnect, and check the status of VPN connections,

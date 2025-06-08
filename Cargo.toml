@@ -2,12 +2,14 @@
 name = "upv-cli"
 version = "0.1.0"
 edition = "2024"
-license = "MIT OR Apache-2.0"
 authors = ["Alejandro Gómez (algono)"]
+description = "A CLI tool for managing VPN and network shares from UPV (Universitat Politècnica de València) on Windows."
 repository = "https://github.com/algono/upv-cli"
 homepage = "https://github.com/algono/upv-cli"
-description = "A command-line tool for managing VPN and network shares (on Windows) from UPV (Universitat Politècnica de València)."
+license = "MIT OR Apache-2.0"
 readme = "README.md"
+keywords = ["vpn", "network", "cli", "windows", "upv"]
+categories = ["command-line-utilities", "network-programming"]
 
 [[bin]]
 name = "upv"
