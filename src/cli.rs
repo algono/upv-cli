@@ -23,9 +23,15 @@ pub enum Commands {
         #[command(subcommand)]
         action: DriveAction,
     },
-    /// Generate a PowerShell auto-completions script that you can source in your PowerShell profile
-    // (this could allow other shells, but for now since we only support Windows, we can keep it simple)
-    Completions
+    /// Generate an auto-completions script for your shell
+    #[command(
+      after_help = "\x1b[1;4mExamples\x1b[0m:\n \x1b[1mupv.exe completions powershell\x1b[0m  Generates a PowerShell script for auto-completions"
+    )]
+    Completions {
+        /// Shell type for completions
+        #[arg(value_enum, ignore_case = true)]
+        shell: clap_complete::Shell,
+    },
 }
 
 #[derive(Subcommand)]

@@ -80,8 +80,8 @@ upv drive mount myuser ALUMNO -d W -o  # Short flags, uses VPN credentials
 upv drive mount myuser ALUMNO -p mypass -d W -o  # Short flags with password
 upv drive unmount --drive W
 upv drive status
-upv completions # Generate PowerShell shell completions script
-upv completions > upv-completions.ps1 # Save PowerShell shell completions script to a file
+upv completions powershell # Generate PowerShell shell completions script
+upv completions powershell > upv-completions.ps1 # Save PowerShell shell completions script to a file
 ```
 
 Use `--help` to see available options:
@@ -96,7 +96,20 @@ upv drive --help
 
 ## 🧩 Shell Completions
 
-`upv-cli` supports generating shell completion scripts for various shells, but since it's mainly Windows-focused, **PowerShell completions** are provided out-of-the-box.
+`upv-cli` supports shell auto-completions for various shells thanks to the `upv completions` command.
+
+In the following instructions, we focus on **PowerShell**, but you can adapt them for other shells like Bash or Zsh.
+
+As of writing, the `clap_complete` library supports the following shells:
+- Bash
+- Elvish
+- Fish
+- PowerShell
+- Zsh
+
+For more information, check out the [clap_complete library documentation](https://docs.rs/clap_complete/latest/clap_complete/).
+
+> If they add more shells in the future, feel free to open an issue or PR to update `clap_complete`'s version in this project, and also update the README including those shells in the list.
 
 You have two easy ways to enable completions:
 
@@ -105,14 +118,14 @@ You have two easy ways to enable completions:
 Add this line to your PowerShell profile (`$PROFILE`), so completions load dynamically every time you open a new shell:
 
 ```powershell
-Invoke-Expression (& upv completions | Out-String)
+Invoke-Expression (& upv completions powershell | Out-String)
 ```
 
 If you want to make it so it only runs when `upv` is available, you can add this instead:
 
 ```powershell
 if (Get-Command upv -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& upv completions | Out-String)
+    Invoke-Expression (& upv completions powershell | Out-String)
 }
 ```
 
@@ -125,7 +138,7 @@ If you prefer faster shell startup and don't want to run the completion generato
 1. Generate the completions file and save it somewhere (e.g., `~\upv-completions.ps1`):
 
 ```powershell
-upv completions > $HOME\upv-completions.ps1
+upv completions powershell > $HOME\upv-completions.ps1
 ```
 
 2. Add this line to your PowerShell profile (`$PROFILE`) to load the saved completions script:

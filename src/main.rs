@@ -15,7 +15,7 @@ mod vpn;
 
 use clap::{Parser, CommandFactory};
 use anyhow::Result;
-use clap_complete::{generate, shells::PowerShell};
+use clap_complete::generate;
 use std::io;
 
 use cli::{Cli, Commands, VpnAction, DriveAction};
@@ -74,8 +74,8 @@ fn main() -> Result<()> {
                 }
             }
         }
-        Commands::Completions => {
-            generate(PowerShell, &mut Cli::command(), "upv", &mut io::stdout());
+        Commands::Completions { shell } => {
+            generate(shell, &mut Cli::command(), "upv", &mut io::stdout());
         }
     }
     
