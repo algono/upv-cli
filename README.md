@@ -44,24 +44,24 @@ upv <command> [options]
 ### Example commands:
 
 ```bash
-upv-cli vpn create "My UPV Connection" --connect
-upv-cli vpn create "UPV Work" -c  # Short flag for --connect
-upv-cli vpn connect "My UPV Connection"
-upv-cli vpn disconnect
-upv-cli vpn delete "My UPV Connection"
-upv-cli vpn delete "UPV Work" --force  # Skip confirmation
-upv-cli vpn list
-upv-cli vpn purge                       # Delete all UPV connections (with double confirmation)
-upv-cli vpn purge --force              # Delete all UPV connections without confirmation
-upv-cli vpn purge --except "Keep This" # Delete all except specified connections
-upv-cli vpn purge -e "VPN1" -e "VPN2"  # Delete all except VPN1 and VPN2
-upv-cli vpn status
-upv-cli drive mount UPVNET --username myuser --drive W --open  # Uses VPN credentials
-upv-cli drive mount UPVNET --username myuser --password mypass --drive W --open  # Uses explicit credentials
-upv-cli drive mount ALUMNO -u myuser -d W -o  # Short flags, uses VPN credentials
-upv-cli drive mount ALUMNO -u myuser -p mypass -d W -o  # Short flags with password
-upv-cli drive unmount --drive W
-upv-cli drive status
+upv vpn create "My UPV Connection" --connect
+upv vpn create "UPV Work" -c  # Short flag for --connect
+upv vpn connect "My UPV Connection"
+upv vpn disconnect
+upv vpn delete "My UPV Connection"
+upv vpn delete "UPV Work" --force  # Skip confirmation
+upv vpn list
+upv vpn purge                       # Delete all UPV connections (with double confirmation)
+upv vpn purge --force              # Delete all UPV connections without confirmation
+upv vpn purge --except "Keep This" # Delete all except specified connections
+upv vpn purge -e "VPN1" -e "VPN2"  # Delete all except VPN1 and VPN2
+upv vpn status
+upv drive mount UPVNET --username myuser --drive W --open  # Uses VPN credentials
+upv drive mount UPVNET --username myuser --password mypass --drive W --open  # Uses explicit credentials
+upv drive mount ALUMNO -u myuser -d W -o  # Short flags, uses VPN credentials
+upv drive mount ALUMNO -u myuser -p mypass -d W -o  # Short flags with password
+upv drive unmount --drive W
+upv drive status
 ```
 
 Use `--help` to see available options:
