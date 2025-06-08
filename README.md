@@ -23,6 +23,8 @@
 
 ## 📦 Installation
 
+> :warning: **Note:** This tool is only available for **Windows**, since it uses Windows-specific features like `net use` and `rasdial`.
+
 Install from source using Cargo:
 
 ```bash
