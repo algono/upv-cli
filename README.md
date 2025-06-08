@@ -86,6 +86,8 @@ Use `--help` to see available options:
 
 ```bash
 upv --help
+upv vpn --help
+upv drive --help
 ```
 
 ---
