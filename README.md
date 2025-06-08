@@ -74,10 +74,10 @@ upv vpn purge --force              # Delete all UPV connections without confirma
 upv vpn purge --except "Keep This" # Delete all except specified connections
 upv vpn purge -e "VPN1" -e "VPN2"  # Delete all except VPN1 and VPN2
 upv vpn status
-upv drive mount UPVNET --username myuser --drive W --open  # Uses VPN credentials
-upv drive mount UPVNET --username myuser --password mypass --drive W --open  # Uses explicit credentials
-upv drive mount ALUMNO -u myuser -d W -o  # Short flags, uses VPN credentials
-upv drive mount ALUMNO -u myuser -p mypass -d W -o  # Short flags with password
+upv drive mount myuser UPVNET --drive W --open  # Uses VPN credentials
+upv drive mount myuser UPVNET --password mypass --drive W --open  # Uses explicit credentials
+upv drive mount myuser ALUMNO -d W -o  # Short flags, uses VPN credentials
+upv drive mount myuser ALUMNO -p mypass -d W -o  # Short flags with password
 upv drive unmount --drive W
 upv drive status
 ```
