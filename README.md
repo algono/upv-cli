@@ -47,7 +47,7 @@ Make sure `~/.cargo/bin` is in your `PATH`.
 
 ```bash
 cargo install upv-cli
-upv vpn create "UPV VPN" --connect
+upv vpn create UPV --connect
 upv drive mount UPVNET -u myuser -d W -o
 ```
 
