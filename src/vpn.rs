@@ -2,6 +2,8 @@ use std::process::{Command, Stdio};
 use std::io::{self, Write};
 use anyhow::{Result, Context};
 
+use crate::error::{UpvError, EXIT_UPV_ERROR};
+
 // Embed the EAP configuration XML file at compile time
 const EAP_CONFIG_XML: &str = include_str!("../resources/UPV_Config.xml");
 
@@ -26,7 +28,10 @@ impl VpnManager {
         
         if !output.status.success() {
             let error = String::from_utf8_lossy(&output.stderr);
-            return Err(anyhow::anyhow!("Failed to get VPN connections: {}", error));
+            return Err(UpvError::new(
+                format!("Failed to get VPN connections: {}", error),
+                EXIT_UPV_ERROR
+            ).into());
         }
         
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -50,7 +55,10 @@ impl VpnManager {
         
         if !output.status.success() {
             let error = String::from_utf8_lossy(&output.stderr);
-            return Err(anyhow::anyhow!("Failed to delete VPN connection '{}': {}", name, error));
+            return Err(UpvError::new(
+                format!("Failed to delete VPN connection '{}': {}", name, error),
+                EXIT_UPV_ERROR
+            ).into());
         }
         
         Ok(())
@@ -104,7 +112,10 @@ impl VpnManager {
             }
         } else {
             let error = String::from_utf8_lossy(&output.stderr);
-            eprintln!("Failed to create VPN connection: {}", error);
+            return Err(UpvError::new(
+                format!("Failed to create VPN connection '{}': {}", name, error),
+                EXIT_UPV_ERROR
+            ).into());
         }
         
         Ok(())
@@ -113,13 +124,8 @@ impl VpnManager {
     /// Purges all UPV VPN connections, with optional exceptions and force confirmation.
     pub fn purge(force: bool, except_names: Vec<String>) -> Result<()> {
         // Get the list of UPV connections
-        let all_connections = match Self::get_upv_connections() {
-            Ok(conns) => conns,
-            Err(e) => {
-                eprintln!("Failed to get VPN connections: {}", e);
-                return Ok(());
-            }
-        };
+        let all_connections = Self::get_upv_connections()
+            .context("Failed to retrieve UPV VPN connections")?;
         
         if all_connections.is_empty() {
             println!("No UPV VPN connections found to delete.");
@@ -216,7 +222,10 @@ impl VpnManager {
             println!("Connection dialog opened for '{}'", name);
         } else {
             let error = String::from_utf8_lossy(&output.stderr);
-            eprintln!("Failed to open connection dialog: {}", error);
+            return Err(UpvError::new(
+                format!("Failed to open connection dialog for '{}': {}", name, error),
+                EXIT_UPV_ERROR
+            ).into());
         }
         
         Ok(())
@@ -235,7 +244,10 @@ impl VpnManager {
             println!("Disconnected from VPN successfully");
         } else {
             let error = String::from_utf8_lossy(&output.stderr);
-            eprintln!("Failed to disconnect: {}", error);
+            return Err(UpvError::new(
+                format!("Failed to disconnect from VPN: {}", error),
+                EXIT_UPV_ERROR
+            ).into());
         }
         
         Ok(())
@@ -259,10 +271,9 @@ impl VpnManager {
         
         println!("Deleting VPN connection '{}'...", name);
         
-        match Self::delete_connection(name) {
-            Ok(()) => println!("VPN connection '{}' deleted successfully", name),
-            Err(e) => eprintln!("Failed to delete VPN connection: {}", e),
-        }
+        Self::delete_connection(name)?;
+
+        println!("VPN connection '{}' deleted successfully", name);
         
         Ok(())
     }

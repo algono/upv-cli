@@ -12,15 +12,17 @@
 mod cli;
 mod drive;
 mod vpn;
+mod error;
 
 use clap::{Parser, CommandFactory};
 use anyhow::Result;
 use clap_complete::generate;
-use std::io;
+use std::{io, process};
 
 use cli::{Cli, Commands, VpnAction, DriveAction};
 use drive::DriveManager;
 use vpn::VpnManager;
+use error::{UpvError, EXIT_SUCCESS, EXIT_PROGRAM_ERROR};
 
 #[cfg(not(target_os = "windows"))]
 fn main() -> anyhow::Result<()> {
@@ -29,7 +31,25 @@ fn main() -> anyhow::Result<()> {
 }
 
 #[cfg(target_os = "windows")]
-fn main() -> Result<()> {
+fn main() {
+    let exit_code = match run() {
+        Ok(()) => EXIT_SUCCESS,
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            
+            // Extraer código de salida si es CliError
+            if let Some(cli_error) = e.downcast_ref::<UpvError>() {
+                cli_error.exit_code
+            } else {
+                EXIT_PROGRAM_ERROR // Error técnico/anyhow genérico
+            }
+        }
+    };
+    
+    process::exit(exit_code);
+}
+
+fn run() -> Result<()> {
     let cli = Cli::parse();
     
     match cli.command {

@@ -3,6 +3,8 @@ use std::process::{Command};
 use anyhow::{Result, Context};
 use std::path::Path;
 
+use crate::error::{UpvError, EXIT_UPV_ERROR};
+
 #[derive(Debug, Clone, ValueEnum)]
 pub enum UPVDomain {
     ALUMNO,
@@ -58,7 +60,10 @@ impl DriveManager {
             }
         } else {
             let error = String::from_utf8_lossy(&output.stderr);
-            eprintln!("Failed to mount drive: {}", error);
+            return Err(UpvError::new(
+                format!("Failed to mount drive {}: {}", drive, error),
+                EXIT_UPV_ERROR
+            ).into());
         }
         
         Ok(())
@@ -69,7 +74,10 @@ impl DriveManager {
         let path = format!("{}:\\", drive);
 
         if check_if_exists && !Path::new(&path).exists() {
-            anyhow::bail!("Drive {} does not exist", drive);
+            return Err(UpvError::new(
+                format!("Drive {} does not exist", drive),
+                EXIT_UPV_ERROR
+            ).into());
         }
 
         println!("Opening drive {}: in Explorer...", drive);
@@ -106,12 +114,17 @@ impl DriveManager {
             // If stdout contains "/N" it's part of "(Y/N)". This confirmation shows when it's trying to unmount a drive that is in use
             // (files are open, the folder is open, etc.)
             if stdout.contains("/N") {
-                eprintln!("Drive {}: is currently IN USE. Please CLOSE any open files or folders on this drive and try again, or run this again with the --force option to unmount it anyways, accepting that INFORMATION COULD BE LOST.", drive);
-                return Ok(());
+                return Err(UpvError::new(
+                    format!("Drive {}: is currently IN USE. Please CLOSE any open files or folders on this drive and try again, or run this again with the --force option to unmount it anyways, accepting that INFORMATION COULD BE LOST.", drive),
+                    EXIT_UPV_ERROR
+                ).into());
             }
 
             let error = String::from_utf8_lossy(&output.stderr);
-            eprintln!("Failed to unmount drive: {}", error);
+            return Err(UpvError::new(
+                format!("Failed to unmount drive {}: {}", drive, error),
+                EXIT_UPV_ERROR
+            ).into());
         }
         
         Ok(())
