@@ -77,6 +77,7 @@ pub enum VpnAction {
 #[derive(Subcommand)]
 pub enum DriveAction {
     /// Mount the personal network drive (Disco W)
+    #[command(visible_alias = "connect")]
     Mount {
         /// Your UPV username (example: if your email is "user@upv.es", your username is "user")
         username: String,
@@ -94,7 +95,8 @@ pub enum DriveAction {
         #[arg(short, long)]
         open: bool,
     },
-    /// Unmount the personal network drive
+    /// Unmount the personal network drive (Disco W)
+    #[command(visible_alias = "disconnect")]
     Unmount {
         /// Drive letter to unmount
         #[arg(short, long, default_value = "W")]
