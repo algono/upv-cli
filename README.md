@@ -151,6 +151,30 @@ Now your completions load instantly, but you'll need to regenerate the file manu
 
 ---
 
+## 🚪 Exit codes
+
+The `upv` command returns the following exit codes:
+
+- `0`: Success
+
+### General errors:
+
+These errors are common to all commands and indicate general issues:
+
+- `1`: General error (the program failed)
+- `2`: Invalid command or argument (parsing error)
+
+### Specific upv-cli errors:
+
+These errors are specific to the `upv-cli` tool and typically indicate issues with VPN or drive operations:
+
+- `10`: Generic upv-cli error
+- `11`: VPN error
+- `12`: Drive error
+- `13`: Drive in use error (files or folders are open on the drive)
+
+---
+
 ## 🛠️ Development
 
 Clone the repo and run locally:
