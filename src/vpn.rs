@@ -2,7 +2,7 @@ use std::process::{Command, Stdio};
 use std::io::{self, Write};
 use anyhow::{Result, Context};
 
-use crate::error::{UpvError, EXIT_UPV_ERROR};
+use crate::error::{UpvError, EXIT_UPV_VPN_ERROR};
 
 // Embed the EAP configuration XML file at compile time
 const EAP_CONFIG_XML: &str = include_str!("../resources/UPV_Config.xml");
@@ -30,7 +30,7 @@ impl VpnManager {
             let error = String::from_utf8_lossy(&output.stderr);
             return Err(UpvError::new(
                 format!("Failed to get VPN connections: {}", error),
-                EXIT_UPV_ERROR
+                EXIT_UPV_VPN_ERROR
             ).into());
         }
         
@@ -57,7 +57,7 @@ impl VpnManager {
             let error = String::from_utf8_lossy(&output.stderr);
             return Err(UpvError::new(
                 format!("Failed to delete VPN connection '{}': {}", name, error),
-                EXIT_UPV_ERROR
+                EXIT_UPV_VPN_ERROR
             ).into());
         }
         
@@ -114,7 +114,7 @@ impl VpnManager {
             let error = String::from_utf8_lossy(&output.stderr);
             return Err(UpvError::new(
                 format!("Failed to create VPN connection '{}': {}", name, error),
-                EXIT_UPV_ERROR
+                EXIT_UPV_VPN_ERROR
             ).into());
         }
         
@@ -224,7 +224,7 @@ impl VpnManager {
             let error = String::from_utf8_lossy(&output.stderr);
             return Err(UpvError::new(
                 format!("Failed to open connection dialog for '{}': {}", name, error),
-                EXIT_UPV_ERROR
+                EXIT_UPV_VPN_ERROR
             ).into());
         }
         
@@ -246,7 +246,7 @@ impl VpnManager {
             let error = String::from_utf8_lossy(&output.stderr);
             return Err(UpvError::new(
                 format!("Failed to disconnect from VPN: {}", error),
-                EXIT_UPV_ERROR
+                EXIT_UPV_VPN_ERROR
             ).into());
         }
         

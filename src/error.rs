@@ -4,8 +4,11 @@ use std::fmt;
 pub const EXIT_SUCCESS: i32 = 0;
 pub const EXIT_PROGRAM_ERROR: i32 = 1;
 
-// Error codes for specific errors in upv-cli (10-19)
-pub const EXIT_UPV_ERROR: i32 = 10;
+// Exit codes for specific errors in upv-cli (10-19)
+//pub const EXIT_UPV_ERROR: i32 = 10;
+pub const EXIT_UPV_VPN_ERROR: i32 = 11;
+pub const EXIT_UPV_DRIVE_ERROR: i32 = 12;
+pub const EXIT_UPV_DRIVE_IN_USE_ERROR: i32 = 13;
 
 #[derive(Debug)]
 pub struct UpvError {

@@ -3,7 +3,7 @@ use std::process::{Command};
 use anyhow::{Result, Context};
 use std::path::Path;
 
-use crate::error::{UpvError, EXIT_UPV_ERROR};
+use crate::error::{UpvError, EXIT_UPV_DRIVE_ERROR, EXIT_UPV_DRIVE_IN_USE_ERROR};
 
 #[derive(Debug, Clone, ValueEnum)]
 pub enum UPVDomain {
@@ -62,7 +62,7 @@ impl DriveManager {
             let error = String::from_utf8_lossy(&output.stderr);
             return Err(UpvError::new(
                 format!("Failed to mount drive {}: {}", drive, error),
-                EXIT_UPV_ERROR
+                EXIT_UPV_DRIVE_ERROR
             ).into());
         }
         
@@ -76,7 +76,7 @@ impl DriveManager {
         if check_if_exists && !Path::new(&path).exists() {
             return Err(UpvError::new(
                 format!("Drive {} does not exist", drive),
-                EXIT_UPV_ERROR
+                EXIT_UPV_DRIVE_ERROR
             ).into());
         }
 
@@ -116,14 +116,14 @@ impl DriveManager {
             if stdout.contains("/N") {
                 return Err(UpvError::new(
                     format!("Drive {}: is currently IN USE. Please CLOSE any open files or folders on this drive and try again, or run this again with the --force option to unmount it anyways, accepting that INFORMATION COULD BE LOST.", drive),
-                    EXIT_UPV_ERROR
+                    EXIT_UPV_DRIVE_IN_USE_ERROR
                 ).into());
             }
 
             let error = String::from_utf8_lossy(&output.stderr);
             return Err(UpvError::new(
                 format!("Failed to unmount drive {}: {}", drive, error),
-                EXIT_UPV_ERROR
+                EXIT_UPV_DRIVE_ERROR
             ).into());
         }
         
