@@ -46,9 +46,17 @@ Make sure `~/.cargo/bin` is in your `PATH`.
 ## ⚡ Quickstart
 
 ```bash
-cargo install upv-cli
 upv vpn create UPV --connect
-upv drive mount UPVNET -u myuser -d W -o
+upv drive mount myuser UPVNET -d W -o
+```
+
+### Explanation
+
+```bash
+# Create and connect to a VPN named "UPV"
+upv vpn create UPV --connect
+# Mount the UPV network drive (Disco W) using VPN credentials for the user "myuser" in the "UPVNET" domain to drive W, and then open it from File Explorer
+upv drive mount myuser UPVNET -d W -o
 ```
 
 ---
