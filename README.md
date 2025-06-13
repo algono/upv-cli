@@ -23,23 +23,46 @@
 
 ## 📦 Installation
 
-> ⚠️ **Note:** This tool is only available for **Windows**, since it uses Windows-specific features like `net use` and `rasdial`.
+> ⚠️ **Important:** This tool is only available for **Windows**, since it uses Windows-specific features like `net use` and `rasdial`.
 
-Install from [crates.io](https://crates.io/crates/upv-cli):
+> 📝 **Note:** After installing, the binary should be available as `upv` (the file is `upv.exe`).
+
+### From Scoop
+
+If you use [Scoop](https://scoop.sh/), you can install `upv-cli` by adding my personal bucket with the following commands:
+
+```bash
+scoop bucket add algono https://github.com/algono/scoop-algono
+scoop install upv-cli
+```
+
+### From GitHub Releases
+
+You can download the latest release's binary file from the [GitHub Releases page](https://github.com/algono/upv-cli/releases/latest).
+
+Click here to directly download the latest release: [upv-cli latest release](https://github.com/algono/upv-cli/releases/latest/download/upv.exe).
+
+Just download the `upv.exe` file, place it in a directory that's in your `PATH`, and you're good to go!
+
+### From Crates\.io
+
+> **Note:** Requires Rust and Cargo installed. If you don't have them, follow the [Rust installation guide](https://www.rust-lang.org/tools/install).
+
+If you have cargo installed, you can install it from [crates.io](https://crates.io/crates/upv-cli):
 
 ```bash
 cargo install upv-cli
 ```
 
-Or from source:
+Or from source after cloning the repository:
 
 ```bash
+git clone https://github.com/algono/upv-cli
+cd upv-cli
 cargo install --path .
 ```
 
 Make sure `~/.cargo/bin` is in your `PATH`.
-
-> 📝 **Note:** After installing, the binary is available as `upv`.
 
 ---
 
