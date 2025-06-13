@@ -216,6 +216,68 @@ cd upv-cli
 cargo run -- <your-args>
 ```
 
+## How to publish a new version
+
+> **Note:** Requires Rust and Cargo installed. If you don't have them, follow the [Rust installation guide](https://www.rust-lang.org/tools/install).
+
+If you want to create a new version, remember to update the version in `Cargo.toml` before building.
+
+#### For Crates\.io
+
+Publish the new version to [crates.io](https://crates.io/crates/upv-cli):
+
+```bash
+cargo publish
+```
+
+#### For GitHub Releases + Scoop
+
+- Build the project in release mode:
+
+```bash
+cargo build --release
+```
+
+- Generate hash for the latest release:
+
+```pwsh
+$hash = (Get-FileHash -Path .\target\release\upv.exe -Algorithm SHA256).Hash.ToLower()
+$hash > .\target\release\upv.exe.sha256
+```
+
+Then, upload both the `upv.exe` and `upv.exe.sha256` files from `target/release/` to the GitHub Releases page (for this repo, that would be at: <https://github.com/algono/upv-cli/releases/new>).
+
+##### Scoop bucket update
+
+If you own any Scoop bucket targeting this tool (such as [scoop-algono](https://github.com/algono/scoop-algono)), the update the `upv-cli.json` manifest must be updated.
+
+That could happen automatically if you have a GitHub Action that updates the manifest (such as `Excavate` from the Scoop Bucket Template) running on a schedule. You can also manually trigger the GitHub Action to update the manifest.
+
+> Note that the Excavate GitHub Action will only work if the manifest is properly configured with `checkver` and `autoupdate` fields.
+
+You can also update the manifest manually, by changing the `version`, `url` and `hash` fields in the `upv-cli.json` manifest file, and then committing and pushing the changes to your bucket repository.
+
+This is an example of the `upv-cli.json` manifest file, extracted from the [scoop-algono](https://github.com/algono/scoop-algono) bucket:
+
+```json
+{
+    "version": "0.4.0",
+    "description": "A CLI tool for managing VPN and network shares from UPV (Universitat Politècnica de València) on Windows.",
+    "homepage": "https://github.com/algono/upv-cli",
+    "license": "MIT OR Apache-2.0",
+    "url": "https://github.com/algono/upv-cli/releases/download/v0.4.0/upv.exe",
+    "hash": "cc800b5f6a67328581010670b54aa9c0857d7f0b9faec0b3fec47c7162620b9b",
+    "bin": "upv.exe",
+    "checkver": "github",
+    "autoupdate": {
+        "url": "https://github.com/algono/upv-cli/releases/download/v$version/upv.exe",
+        "hash": {
+            "url": "$url.sha256"
+        }
+    }
+}
+```
+
 ---
 
 ## 🧾 License
