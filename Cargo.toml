@@ -1,6 +1,6 @@
 [package]
 name = "upv-cli"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2024"
 authors = ["Alejandro Gómez (algono)"]
 description = "A CLI tool for managing VPN and network shares from UPV (Universitat Politècnica de València) on Windows."
