@@ -4,7 +4,10 @@ use anyhow::{Result, Context};
 
 use crate::error::{UpvError, EXIT_UPV_VPN_ERROR};
 
+// Docs on UPV VPN setup for Windows 11: https://wiki.upv.es/confluence/spaces/MANUALES/pages/903381153/Windows+-+VPN+con+Microsoft+Windows+11
+
 // Embed the EAP configuration XML file at compile time
+// (docs: https://docs.microsoft.com/es-es/windows/client-management/mdm/eap-configuration)
 const EAP_CONFIG_XML: &str = include_str!("../resources/UPV_Config.xml");
 
 pub struct VpnManager;
